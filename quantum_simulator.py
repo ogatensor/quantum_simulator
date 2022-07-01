@@ -13,6 +13,159 @@ gates = {
     "t":np.array([[1, 0],[0, np.exp(np.pi * +1j / 4)]]),
 }
 
+# A structure to store the quantum state and the corresponding instructions
+class QuantumState:
+    def __init__(self, num_qubits):
+        self.num_qubits = num_qubits
+        self.state_vector = get_ground_state(num_qubits)
+        self.instructions = []
+
+    def add_instruction(self, instruction):
+        self.instructions.append(instruction)
+        self.state_vector = self.apply_instruction(instruction)
+
+    def apply_instruction(self, instruction):
+        """
+        Applies an instruction to the quantum state
+        @param instruction: the instruction to be applied
+        @return: the new quantum state after the instruction is applied
+        """
+        # get the operator for the given instruction
+        operator = get_operator(self.num_qubits, instruction['gate'], instruction['target'])
+
+        # apply the operator to the state vector
+        self.state_vector = np.dot(operator, self.state_vector)
+
+        return self.state_vector
+
+    def get_probability(self, bit):
+        """
+        Returns the probability of the given bit
+        @param bit: the bit to be checked
+        @return: the probability of the given bit
+        """
+        # get the probability of the given bit
+        probability = np.abs(self.state_vector[bit]) ** 2
+
+        return probability
+
+    def get_probabilities(self):
+        """
+        Returns the probabilities of all the bits
+        @return: the probabilities of all the bits
+        """
+        # get the probabilities of all the bits
+        probabilities = np.abs(self.state_vector) ** 2
+
+        return probabilities
+
+    def get_bit(self, probability):
+        """
+        Returns the bit with the given probability
+        @param probability: the probability of the bit to be returned
+        @return: the bit with the given probability
+        """
+        # get the bit with the given probability
+        get_probable_bit = np.argmax(self.state_vector, axis=1)
+        bit = np.argmax(get_probable_bit == probability)
+
+        return bit
+
+    def get_bits(self):
+        """
+        Returns the bits of the quantum state
+        @return: the bits of the quantum state
+        """
+        # get the bits of the quantum state
+        bits = np.argmax(self.state_vector, axis=1)
+
+        return bits
+
+    def get_bit_probabilities(self):
+        """
+        Returns the probabilities of all the bits
+        @return: the probabilities of all the bits
+        """
+        # get the probabilities of all the bits
+        probabilities = np.abs(self.state_vector) ** 2
+
+        return probabilities
+
+    def get_bit_probability(self, bit):
+        """
+        Returns the probability of the given bit
+        @param bit: the bit to be checked
+        @return: the probability of the given bit
+        """
+        # get the probability of the given bit
+        probability = np.abs(self.state_vector[bit]) ** 2
+
+        return probability
+    
+    
+class QuantumCircuit:
+    def __init__(self, num_qubits):
+        self.num_qubits = num_qubits
+        self.state_vector = get_ground_state(num_qubits)
+        self.instructions = []
+
+    def add_instruction(self, instruction):
+        self.instructions.append(instruction)
+        self.state_vector = self.apply_instruction(instruction)
+
+    def apply_instruction(self, instruction):
+        """
+        Applies an instruction to the quantum state
+        @param instruction: the instruction to be applied
+        @return: the new quantum state after the instruction is applied
+        """
+        # get the operator for the given instruction
+        operator = get_operator(self.num_qubits, instruction['gate'], instruction['target'])
+
+        # apply the operator to the state vector
+        self.state_vector = np.dot(operator, self.state_vector)
+
+        return self.state_vector
+    
+    def get_probability(self, bit):
+        """
+        Returns the probability of the given bit
+        @param bit: the bit to be checked
+        @return: the probability of the given bit
+        """
+        # get the probability of the given bit
+        probability = np.abs(self.state_vector[bit]) ** 2
+
+        return probability
+
+    def get_probabilities(self):
+        """
+        Returns the probabilities of all the bits
+        @return: the probabilities of all the bits
+        """
+        # get the probabilities of all the bits
+        probabilities = np.abs(self.state_vector) ** 2
+
+        return probabilities
+
+    def get_bit(self, probability):
+        """
+        Returns the bit with the given probability
+        @param probability: the probability of the bit to be returned
+        @return: the bit with the given probability
+        """
+        # get the bit with the given probability
+        bit = np.argmax(probabilities)
+
+        return bit
+
+    def get_bits(self):
+        """
+        Returns the bits of the quantum state
+        @return: the bits of the quantum state
+        """
+        # get the bits of the quantum state
+
 def get_ground_state(num_qubits):
     """
     Takes the number of qubits and returns a vector in the ground state representing |0>
@@ -231,6 +384,73 @@ def generate_time_crystal(num_qubits, num_instructions, num_shots, frequency, nu
         time_crystal.append({'program': program, 'state': state, 'counts': counts})
 
     return time_crystal
+
+def unitary_to_matrix(unitary):
+    """
+    Converts a unitary matrix to a matrix
+    @param unitary: a unitary matrix
+    @return: a matrix
+    """
+    # convert a unitary matrix to a matrix
+    # return a matrix
+    return np.matrix(unitary)
+
+def matrix_to_unitary(matrix):
+    """
+    Converts a matrix to a unitary matrix
+    @param matrix: a matrix
+    @return: a unitary matrix
+    """
+    # convert a matrix to a unitary matrix
+    # return a unitary matrix
+    return np.linalg.inv(matrix)
+
+def unitary_to_vector(unitary):
+    """
+    Converts a unitary matrix to a vector
+    @param unitary: a unitary matrix
+    @return: a vector
+    """
+    # convert a unitary matrix to a vector
+    # return a vector
+    return np.array(unitary).flatten()
+
+def zero_state(num_qubits):
+    """
+    Generates a zero state vector of num_qubits qubits
+    @param num_qubits: number of qubits in the system
+    @return: a zero state vector of num_qubits qubits
+    """
+    # generate a zero state vector of num_qubits qubits
+    # return a state vector of size 2**num_qubits
+    return np.zeros(2**num_qubits)
+
+def time_evolution(state, unitary, num_time_crystals, num_time_crystals_per_frequency, num_time_crystals_per_frequency_per_instruction):
+    """
+    Applies a unitary matrix to a state vector
+    @param state: a state vector
+    @param unitary: a unitary matrix
+    @param num_time_crystals: number of time crystals
+    @param num_time_crystals_per_frequency: number of time crystals per frequency
+    @param num_time_crystals_per_frequency_per_instruction: number of time crystals per frequency per instruction
+    @return: a state vector
+    """
+    # apply a unitary matrix to a state vector
+    # return a state vector
+    for i in range(num_time_crystals):
+        for j in range(num_time_crystals_per_frequency):
+            for k in range(num_time_crystals_per_frequency_per_instruction):
+                state = unitary.dot(state)
+    return state
+
+def ising_model(num_qubits, num_instructions, num_shots, frequency, num_time_crystals, num_time_crystals_per_frequency, num_time_crystals_per_frequency_per_instruction):
+    return 1 
+
+def get_time_crystal_from_ising_model(num_qubits, num_instructions, num_shots, frequency, num_time_crystals, num_time_crystals_per_frequency, num_time_crystals_per_frequency_per_instruction):
+    return 1
+
+def modify_spin_chain_polarizations(num_qubits, num_instructions, num_shots, frequency, num_time_crystals, num_time_crystals_per_frequency, num_time_crystals_per_frequency_per_instruction):
+    return 1
 
 # Define program:
 my_circuit = [
