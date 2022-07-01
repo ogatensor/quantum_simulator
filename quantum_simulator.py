@@ -158,12 +158,85 @@ def get_counts(state_vector, num_shots):
 
     return json.dumps(stats, sort_keys=True, indent=4)
 
+def get_random_program(num_qubits, num_instructions):
+    """
+    Generates a random program of num_instructions instructions for num_qubits qubits
+    @param num_qubits: number of qubits in the system
+    @param num_instructions: number of instructions in the program
+    @return: a random program of num_instructions instructions for num_qubits qubits
+    """
+    # generate a random program of num_instructions instructions for num_qubits qubits
+    # return a list of dictionaries containing "gate" and "target" for defining the gate operation and target qubits for it 
+    program = []
+    for _ in range(num_instructions):
+        gate = random.choice(list(gates.keys()))
+        target = random.choice(list(range(num_qubits)))
+        program.append({'gate': gate, 'target': [target]})
+
+    return program
+
+def get_random_state(num_qubits):
+    """
+    Generates a random state vector of num_qubits qubits
+    @param num_qubits: number of qubits in the system
+    @return: a random state vector of num_qubits qubits
+    """
+    # generate a random state vector of num_qubits qubits
+    # return a state vector of size 2**num_qubits
+    state = np.random.rand(2**num_qubits)
+    return state 
+
+def get_random_program_and_state(num_qubits, num_instructions):
+    """
+    Generates a random program of num_instructions instructions for num_qubits qubits and a random state vector of num_qubits qubits
+    @param num_qubits: number of qubits in the system
+    @param num_instructions: number of instructions in the program
+    @return: a random program of num_instructions instructions for num_qubits qubits and a random state vector of num_qubits qubits
+    """
+    # generate a random program of num_instructions instructions for num_qubits qubits and a random state vector of num_qubits qubits
+    # return a list of dictionaries containing "gate" and "target" for defining the gate operation and target qubits for it 
+    program = get_random_program(num_qubits, num_instructions)
+    state = get_random_state(num_qubits)
+
+    return program, state
+
+def get_random_program_and_state_and_counts(num_qubits, num_instructions, num_shots):
+    """
+    Generates a random program of num_instructions instructions for num_qubits qubits and a random state vector of num_qubits qubits
+    @param num_qubits: number of qubits in the system
+    @param num_instructions: number of instructions in the program
+    @param num_shots: number of times that the program is executes  
+    @return: a random program of num_instructions instructions for num_qubits qubits and a random state vector of num_qubits qubits and the probability distribution of each output
+    """
+    # generate a random program of num_instructions instructions for num_qubits qubits and a random state vector of num_qubits qubits
+    # return a list of dictionaries containing "gate" and "target" for defining the gate operation and target qubits for it 
+    program, state = get_random_program_and_state(num_qubits, num_instructions)
+    counts = get_counts(state, num_shots)
+
+    return program, state, counts
+
+def generate_time_crystal(num_qubits, num_instructions, num_shots, frequency, num_time_crystals, num_time_crystals_per_frequency, num_time_crystals_per_frequency_per_instruction):
+    """
+    Generates a time crystal of num_qubits qubits and num_instructions instructions for num_shots times
+    @param num_qubits: number of qubits in the system
+    @param num_instructions: number of instructions in the program
+    @param num_shots: number of times that the program is executes  
+    @return: a time crystal of num_qubits qubits and num_instructions instructions for num_shots times
+    """
+    # generate a time crystal of num_qubits qubits and num_instructions instructions for num_shots times
+    # return a list of dictionaries containing "gate" and "target" for defining the gate operation and target qubits for it 
+    program, state, counts = get_random_program_and_state_and_counts(num_qubits, num_instructions, num_shots)
+    time_crystal = []
+    for i in range(num_time_crystals):
+        time_crystal.append({'program': program, 'state': state, 'counts': counts})
+
+    return time_crystal
+
 # Define program:
 my_circuit = [
 { "gate": "h", "target": [0] }, 
 { "gate": "cx", "target": [0, 1] }
 ]
-
 
 # Create "quantum computer" with 2 qubits (this is actually just a vector :) )
 my_qpu = get_ground_state(2)
@@ -174,3 +247,4 @@ final_state = run_program(my_qpu, my_circuit)
 # Read results
 counts = get_counts(final_state, 1000)
 print('Result: ', counts)
+
